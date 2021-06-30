@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        
+		<title>Halaman Peta</title>
+        
+		<link href="assets/css/styles.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
+		
+		<!-- Bootstrap core CSS -->
+		  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		  <link href="assets/css/simple-sidebar.css" rel="stylesheet">
+		  
+		<!-- PETA -->
+		   <link rel="stylesheet" href="assets/leaflet.css">
+		   <script src="assets/leaflet-src.js"></script>
+		   <link rel="stylesheet" href="assets/screen.css">
+
+		   <script src="assets/js/leaflet.ajax.js"></script>
+			<!--memunculkan clustering titik-->
+		  	  <link rel="stylesheet" href="assets/leaflet-marker-cluster/MarkerCluster.css">
+			  <link rel="stylesheet" href="assets/leaflet-marker-cluster/MarkerCluster_002.css">
+			<!-- munculkan mouse koordinat-->
+			  <link rel="stylesheet" href="assets/leaflet-mouseposition/L.Control.MousePosition.css">
+			<!-- munculkan navigasi pengukuran-->
+			  <link rel="stylesheet" href="assets/leaflet-measure/leaflet-measure.css">
+			<!-- Geolocation CSS Library -->
+			  <link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.css">
+			<!-- Font Awesome CSS Library -->
+			  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+			<!--Popup Sidebar-->
+			  <link rel="stylesheet" href="assets/leaflet-sidebar/L.Control.Sidebar.css" />
+			  <script src="assets/leaflet-sidebar/L.Control.Sidebar.js"></script>
+			<!--ZoomHome-->
+			   <link rel="stylesheet" href="assets/leaflet-zoomhome/leaflet.zoomhome.css"/>
+			<!-- Include the loading control -->
+			   <link rel="stylesheet" href="assets/leaflet-control-loading/Control.Loading.css" />
+			   <script src="assets/leaflet-control-loading/Control.Loading.js"></script>
+				
+			<script src="assets/leaflet.js"> </script>
+			<script src="https://unpkg.com/rbush@2.0.2/rbush.min.js"></script>
+			<script src="https://unpkg.com/labelgun@6.1.0/lib/labelgun.min.js"></script>
+			<script src="assets/js/labels.js"></script>
+		<!-- PETA -->
+		
+		<style>
+			body {
+			padding:0;
+			margin:0;
+			}
+			#map {
+			width:auto;
+			height:100%;
+			}
+			.info {
+				padding: 6px 8px;
+				font: 14px/16px;
+				background: white;
+				background: rgba(255,255,255,0.6);
+				box-shadow: 0 0 15px rgba(0,0,0,0.2);
+				border-radius: 5px;
+				}
+			.leaflet-popup-content {
+				width: 300px;
+				max-height: 300px;
+				overflow-y: scroll;
+				}
+			.styleLabel{
+				background: rgba(255, 255, 255, 0);
+				border-radius: 0px;
+				font-size: 10pt;
+				color: white;
+				background-color: transparent;
+				border: transparent;
+				box-shadow: none;
+				}
+			h6 {
+			    display: block;
+			    padding: 0.5rem 1rem;
+			    color: rgba(0, 0, 0, 0.75);
+			    text-decoration: none;
+			    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+				}
+		</style>
+		
+    </head>
+	
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+			<!--ZoomHome-->
+			<script src="assets/leaflet-zoomhome/leaflet.zoomhome.min.js"></script>
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="index.html"><img src="assets/images/logo.png"alt="logo" width="auto" height="45"></img></a>
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            			
+            <!-- Navbar-->
+            <form class="form-inline">
+			  <select class="custom-select" id="inlineFormCustomSelectRHL">
+				<option selected>RHL Intensif</option>
+				<option value="1">RHL Argoforestry</option>
+				<option value="2">RHL Mangrove</option>
+				<option value="3">Bangunan Konservasi Tanah dan Air</option>
+				<option value="4">Kebun Bibit Rakyat</option>
+				<option value="5">Kebun Bibit Desa</option>
+				<option value="6">Bibit Produktif</option>
+				<option value="7">Persemaian Permanen</option>
+			  </select>
+			
+			  <select class="custom-select" id="inlineFormCustomSelectTahun">
+				<option selected>2017</option>
+				<option value="1">2018</option>
+				<option value="2">2019</option>
+				<option value="3">2020</option>
+				<option value="4">2021</option>
+			  </select>
+			  
+			  <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fa fa-check"></i></button>
+			</form>
+			
+		  <ul class="navbar-nav  ms-auto me-0 me-md-3 my-2 my-md-0">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+			<li class="nav-item">
+              <a class="nav-link active" href="peta_intensif.html">Peta <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Tentang</a>
+            </li>
+          </ul>		
+		
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+                            <div class="sb-sidenav-menu-heading">RHL Intensif Tahun 2020</div>
+                            
+							<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                                <div class="sb-nav-link-icon"></i></div>
+                                Wil.I Stabat
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse1" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center"  href="#"><h6>Blok 1</h6></a>
+                                    <a class="zoom-center2" href="#"><h6>Blok 2</h6></a>
+									<a class="zoom-center3" href="#"><h6>Blok 3</h6></a>
+                                </nav>
+                            </div>
+							
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                <div class="sb-nav-link-icon"></div>
+                                Wil. II Pematangsiantar
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse2" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center-pmt1" href="#"><h6>Blok 1</h6></a>
+									<a class="zoom-center-poligon" href="#"><h6>Blok 2</h6></a>
+                                </nav>
+                            </div>
+							
+							<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                <div class="sb-nav-link-icon"></i></div>
+                                Wil.XIV Kabanjahe
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse3" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center" href="#">Blok 1</a>
+									<a class="nav-link" href="#">Blok 2</a>
+                                </nav>
+                            </div>
+							
+							<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                                <div class="sb-nav-link-icon"></i></div>
+                                Wil. XV Sidikalang
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse4" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center" href="#">Blok 1</a>
+									<a class="nav-link" href="#">Blok 2</a>
+                                </nav>
+                            </div>
+							
+							<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                                <div class="sb-nav-link-icon"></i></div>
+                                V Gayo Lues
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse5" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center" href="#">Blok 1</a>
+									<a class="nav-link" href="#">Blok 2</a>
+                                </nav>
+                            </div>
+							
+							<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
+                                <div class="sb-nav-link-icon"></i></div>
+                                VI Subulussalam
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse6" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center" href="#">Blok 1</a>
+									<a class="nav-link" href="#">Blok 2</a>
+                                </nav>
+                            </div>
+							
+							<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="false" aria-controls="collapse7">
+                                <div class="sb-nav-link-icon"></i></div>
+                                TAHURA
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse7" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center" href="#">Blok 1</a>
+									<a class="nav-link" href="#">Blok 2</a>
+                                </nav>
+                            </div>
+							
+							<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
+                                <div class="sb-nav-link-icon"></i></div>
+                                BBKSDA
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse8" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center" href="#">Blok 1</a>
+									<a class="nav-link" href="#">Blok 2</a>
+                                </nav>
+                            </div>
+							
+							<a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapse9" aria-expanded="false" aria-controls="collapse9">
+                                <div class="sb-nav-link-icon"></i></div>
+                                BBTNGL
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapse9" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="zoom-center" href="#">Blok 1</a>
+									<a class="nav-link" href="#">Blok 2</a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+					
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Tahun 2020</div>
+                        RHL Intensif
+                    </div>
+                </nav>
+            </div>
+            
+			<div id="layoutSidenav_content">
+            <!-- BAGIAN PETA -->
+			<script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js"></script>
+			<script src="assets/leaflet-measure/leaflet-measure.js"></script>	
+			<script src="assets/leaflet-mouseposition/L.Control.MousePosition.js"></script>
+		
+		<!-- sidebar popup -->
+		<div id="sidebarpopup">
+			<h5>INFORMASI</h5>
+			<table>
+			<tr>
+			  <th>Wilayah Kerja</th> 
+			  <td id='pop1'></td>
+			</tr>
+			<tr>
+			  <th>Petak</th>
+			  <td id='pop2'></td>
+			</tr>
+			<tr>
+			  <th>Nomor Blok </th> 
+			  <td id='pop3'></td>
+			</tr>
+			<tr>
+			  <th>Nama Blok</th>
+			  <td id='pop4'></td>
+			</tr>
+			<tr>
+			  <th>Luas Blok</th> 
+			  <td id='pop5'></td>
+			</tr>
+			<tr>
+			  <th>HOK</th>
+			  <td id='pop6'></td>
+			</tr>
+			<tr>
+			  <th>Orang Terlibat</th> 
+			  <td id='pop7'></td>
+			</tr>
+			<tr>
+			  <th>Nilai HOK Kuartal 1</th>
+			  <td id='pop8'></td>
+			</tr>
+			<tr>
+			  <th>KPH</th> 
+			  <td id='pop9'></td>
+			</tr>
+			<tr>
+			  <th>Fungsi kws</th>
+			  <td id='pop10'></td>
+			</tr>
+			<tr>
+			  <th>Luas Petak</th> 
+			  <td id='pop11'></td>
+			</tr>
+			<tr>
+			  <th>Desa</th>
+			  <td id='pop12'></td>
+			</tr>
+			<tr>
+			  <th>Kecamatan</th> 
+			  <td id='pop13'></td>
+			</tr>
+			<tr>
+			  <th>Kabupaten</th>
+			  <td id='pop14'></td>
+			</tr>
+			<tr>
+			  <th>Provinsi</th> 
+			  <td id='pop15'></td>
+			</tr>
+			</table>
+		</div>	
+		
+		<div id='map'></div>
+		<script type="text/javascript">
+		var map = L.map('map', {zoomControl: false}).setView([2.9408,98.8564],11);
+		
+    	// basemap
+		var googlemaps   = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+			maxZoom: 20,
+			subdomains:['mt0','mt1','mt2','mt3'],
+			attribution: 'Google Satellite'
+			});
+			
+			stamenterrain = L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+			maxZoom: 20,
+			subdomains:['mt0','mt1','mt2','mt3'],
+			attribution: 'Google Terrain'
+			});
+			
+			osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+			});
+		googlemaps.addTo(map);
+		
+		//Sidebar Popup
+		var sidebarpopup = L.control.sidebar('sidebarpopup', {
+            closeButton: true,
+            position: 'left'
+        });
+        map.addControl(sidebarpopup);
+		
+		//geojson
+			<!--DAS-->
+			function tooltip(f,l){
+			var out = [];
+			if (f.properties){
+				 out.push("DAS "+f.properties['NAMA_DAS']);
+			 l.bindTooltip(out.join("<br />"));}
+			}
+			
+			var batasDAS = new L.GeoJSON.AJAX(["assets/geojson/DAS.geojson"],{style: styleDAS, onEachFeature:tooltip}).addTo(map);
+			
+			<!--RHL-->
+			map.createPane("pane_RHL");
+			map.getPane("pane_RHL").style.zIndex = 400;
+			
+			// SIDEBAR POPUP + label
+			function infoRHL (feature, layer) {
+			  layer.on('click', function (e) {
+			  //place attributes in panel table.
+				var field1=document.getElementById('pop1');
+				field1.innerHTML=e.target.feature.properties.Wil_Kerja
+				var field2=document.getElementById('pop2');
+				field2.innerHTML=e.target.feature.properties.Petak_OK
+				var field3=document.getElementById('pop3');
+				field3.innerHTML=e.target.feature.properties.Nomor_BLOK
+				var field4=document.getElementById('pop4');
+				field4.innerHTML=e.target.feature.properties.Nama_BLOK
+				var field5=document.getElementById('pop5');
+				field5.innerHTML=e.target.feature.properties.Luas_Blok
+				var field6=document.getElementById('pop6');
+				field6.innerHTML=e.target.feature.properties.HOK
+				var field7=document.getElementById('pop7');
+				field7.innerHTML=e.target.feature.properties.org_terlibat
+				var field8=document.getElementById('pop8');
+				field8.innerHTML=e.target.feature.properties.nilHOKkuart1
+				var field9=document.getElementById('pop9');
+				field9.innerHTML=e.target.feature.properties.KPH
+				var field10=document.getElementById('pop10');
+				field10.innerHTML=e.target.feature.properties.Fungsi_Kws
+				var field11=document.getElementById('pop11');
+				field11.innerHTML=e.target.feature.properties.Luas_Ha
+				var field12=document.getElementById('pop12');
+				field12.innerHTML=e.target.feature.properties.Desa
+				var field13=document.getElementById('pop13');
+				field13.innerHTML=e.target.feature.properties.Kecamatan
+				var field14=document.getElementById('pop14');
+				field14.innerHTML=e.target.feature.properties.Kabupaten
+				var field15=document.getElementById('pop15');
+				field15.innerHTML=e.target.feature.properties.Provinsi
+			  });
+			  layer.bindTooltip(layer.feature.properties['Nama_BLOK']+',<br>Petak '+layer.feature.properties['Petak_OK'], {direction: 'auto', permanent:false, className: 'styleLabel'}); //label
+			}
+			
+			var blokRHL = new L.GeoJSON.AJAX(["assets/geojson/pematangsiantar.geojson"],{pane: "pane_RHL", style: style, onEachFeature: infoRHL}).addTo(map).on('click', function () {
+             sidebarpopup.toggle();
+			});		
+			
+			<!--reset label/zoomout labelnya hilang-->
+			resetLabels([blokRHL]);
+			map.on("move", function(){
+				resetLabels([blokRHL]);
+			});
+			map.on("zoomend", function(){
+				resetLabels([blokRHL]);
+			});
+			map.on("layeradd", function(){
+				resetLabels([blokRHL]);
+			});
+			map.on("layerremove", function(){
+				resetLabels([blokRHL]);
+			});
+			
+			<!-- Foto -->
+			var markers = L.markerClusterGroup();
+			
+			var titik = new L.GeoJSON.AJAX(["assets/geojson/Seb_Pematangsiantar.geojson"],{style: style, onEachFeature:function (f,l){
+			var out = [];
+			if (f.properties){
+			 out.push("Foto: <br>"+"<img src='"+f.properties['gambar']+ "'/>");
+			 l.bindPopup(out.join("<br />"));
+			}
+			}});
+			titik.on('data:loaded', function () {
+			markers.addLayer(titik);
+			});	
+		
+		
+		//CONTROL LAYER
+		var baseLayers = {
+				"Google Maps Sattelite": googlemaps,
+				"Google Stamen Terrain": stamenterrain,
+				"OpenStreetMap": osm
+			};
+		var overlays = {
+				"Blok RHL": blokRHL, 
+				"Batas DAS": batasDAS,
+				"Titik Foto": markers,
+			};
+		
+		//Kontrol Layer
+			L.control.layers(baseLayers, overlays, {collapsed:false}).addTo(map);
+		
+		//warna (klasifikasi)	
+			function getColor(KLS) {
+				return  KLS == 'BBKSDA' ?'#ff2d00' :
+						KLS == 'BBTNGL' ? '#ffbd00' :
+						KLS == 'Aceh V' ? '#f0ff00' :
+						KLS == 'Aceh VI' ? '#74ff00' :
+						KLS == 'Kabanjahe' ?'#00ffbd' :
+						KLS == 'Pematangsiantar' ? '#0097ff' :
+						KLS == 'Sidikalang' ? '#9b00ff' :
+						KLS == 'Stabat' ? '#ff00c9' :
+						KLS == 'TAHURA' ? ' #e74c3c  ' :
+									'#FFEDA0';
+			}
+
+			function style(feature) {
+				return {
+					weight: 2,
+					opacity: 0.5,
+					color: getColor(feature.properties.KPH),
+					dashArray: '3',
+					fillOpacity: 0.1,
+					fillColor: getColor(feature.properties.KPH)
+				};
+			}
+			function styleDAS(feature) {
+				return {
+					weight: 2.5,
+					opacity: 0.5,
+					color: 'white',
+					dashArray: '3',
+					//fillOpacity: 0.3,
+					//fillColor: getColor(feature.properties.KPH)
+				};
+			}
+			
+		//==============================Mouse Coordinate
+		L.control.mousePosition({
+			separator: ',',
+			prefix: 'Koordinat : '
+			}).addTo(map);
+	  
+		//========================Scale Bar================
+		L.control.scale({
+			maxWidth: 150,
+			imperial: false,
+			}).addTo(map);
+		
+		//zoomhome
+	    var zoomHome = L.Control.zoomHome();
+        zoomHome.addTo(map);
+		
+		//=============Geolocation
+        var locateControl = L.control.locate({
+			position: "topleft",
+			drawCircle: true,
+			follow: true,
+			setView: true,
+			keepCurrentZoomLevel: false,
+			markerStyle: {
+			 weight: 1,
+			 opacity: 0.8,
+			 fillOpacity: 0.8,
+			},
+			circleStyle: {
+			 weight: 1,
+			 clickable: false,
+			},
+			icon: "fa fa-crosshairs",
+			metric: true,
+			strings: {
+			title: "Klik untuk mengetahui lokasimu",
+			popup: "Lokasimu sekarang di sini. Akurasi {distance} {unit}",
+			outsideMapBoundsMsg: "Kamu berada di luar area peta"
+			},
+			locateOptions: {
+			maxZoom: 15,
+			watch: true,
+			enableHighAccuracy: true,
+			maximumAge: 10000,
+			timeout: 10000
+			}
+		}).addTo(map);
+	  
+	  //============measurement
+		var measureControl = new L.Control.Measure({
+			primaryLengthUnit: 'meters',
+			secondaryLengthUnit: 'kilometers',
+			primaryAreaUnit: 'hectares',
+			secondaryAreaUnit: 'sqmeters',
+			activeColor: 'green',
+			completedColor: 'blue'
+		});
+		measureControl.addTo(map);
+	
+	  		
+	  // Loading control
+        var loadingControl = L.Control.loading({
+		  separate: true
+        });
+		map.addControl(loadingControl);
+	
+     </script>	 
+	 <!-- BATAS BAGIAN PETA -->
+            </div>
+        </div>
+		
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="assets/js/scripts.js"></script>
+	
+		<!-- Bootstrap core JavaScript -->
+		  <script src="vendor/jquery/jquery.min.js"></script>
+		  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		
+		<!-- FlyTo --> 
+		  <script src="assets/js/zoomto.js"></script>
+		  
+		<!-- untuk memperbaiki tampilan peta yang tidak ter-load dgn baik -->  
+		  <script>map.invalidateSize(true);</script>
+	</body>
+</html>
